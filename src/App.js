@@ -39,9 +39,7 @@ function App() {
   useEffect(() => {
     if (window.location.search.length) {
       setSearchParams(window.location.search)
-    }
-
-    if (lang) {
+    } else if (lang) {
       setSearchParams(prev => {
         (!date && prev.set('q', 'language' + lang))
           || (!lang && prev.set('q', 'created:>' + date))
