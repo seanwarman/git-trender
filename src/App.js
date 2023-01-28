@@ -57,7 +57,7 @@ function App() {
       try {
         setErrorMessage(null)
         const { data } = await axios(`https://api.github.com/search/repositories${window.location.search}`) 
-        const { total_count, items, message } = data
+        const { items, message } = data
         if (message) throw new Error(message)
         setRepos(items)
       } catch (e) {
