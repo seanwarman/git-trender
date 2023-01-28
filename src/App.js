@@ -39,10 +39,17 @@ function App() {
   useEffect(() => {
     if (window.location.search.length) {
       setSearchParams(window.location.search)
-    } else if(!lang) {
-      setSearchParams('q=created:>' + date + '&sort=stars&order=desc')
+    }
+
+    if (lang) {
+      setSearchParams(prev => {
+        (!date && prev.set('q', 'language' + lang))
+          || (!lang && prev.set('q', 'created:>' + date))
+          || prev.set('q', 'language:' + lang + ' created:>' + date)
+        return prev
+      })
     } else {
-      setSearchParams('q=created:>' + date + '%20language:' + lang + '&sort=stars&order=desc')
+      setSearchParams('q=created:>' + date + '&sort=stars&order=desc')
     }
   }, [setSearchParams, lang, date])
 
@@ -70,19 +77,9 @@ function App() {
       <Header
         onChangeDate={({ target }) => {
           setDate(target.value)
-          setSearchParams(prev => {
-            (!lang && prev.set('q', 'created:>' + target.value))
-              || prev.set('q', 'language:' + lang + ' created:>' + date)
-            return prev
-          })
         }}
         onChangeLang={lang => {
           setLang(lang)
-          setSearchParams(prev => {
-            (!date && prev.set('q', 'language' + lang))
-              || prev.set('q', 'language:' + lang + ' created:>' + date)
-            return prev
-          })
         }}
         filterFavs={filterFavs}
         favourites={favourites}
