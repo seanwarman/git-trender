@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 
-import {
-  useSyncedState,
-} from './App.hooks.js'
-
 import FavouriteIcon from './components/FavouriteIcon'
 import StarIcon from './components/StarIcon'
+import Header from './components/Header'
+
+import { useSyncedState } from './App.hooks.js'
 
 function onClickFavouritePartial(setFavourites, id) {
   return (checked) => {
@@ -25,7 +24,6 @@ function App() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [repos, setRepos] = useState([])
   const [errorMessage, setErrorMessage] = useState(null)
-  const [total, setTotal] = useState(0)
 
   const [
     favourites,
@@ -52,7 +50,6 @@ function App() {
         const { data } = await axios(`https://api.github.com/search/repositories${window.location.search}`) 
         const { total_count, items, message } = data
         if (message) throw new Error(message)
-        setTotal(total_count)
         setRepos(items)
       } catch (e) {
         if (e.message) {
@@ -62,45 +59,26 @@ function App() {
         }
       }
     })()
-  }, [setTotal, setRepos, searchParams, setErrorMessage])
+  }, [setRepos, searchParams, setErrorMessage])
 
   return (
     <div className="App container mx-auto max-w-4xl mt-6 pt-6">
-      <header>
-        <h1 className="text-2xl font-bold">Git Trender</h1>
-        <br />
-        <div className="columns-3">
-          <div><label htmlFor="checkbox-favourites"><b>Favourites:</b></label> 
-            <input
-              disabled={favourites.length === 0}
-              className="ml-2"
-              id="checkbox-favourites"
-              type="checkbox"
-              checked={filterFavs}
-              onChange={({ target }) => setFilterFavs(target.checked)}
-            />
-          </div>
-          <div>
-            <label htmlFor="created-from"><b>Created from</b>: </label>
-            <input id="created-from" type="date" onChange={({ target }) => {
-              setDate(target.value)
-              setSearchParams(prev => {
-                prev.set('q', 'created:>' + target.value)
-                return prev
-              })
-            }} />
-          </div>
-          <div className="text-end">
-            <button
-              className={ favourites.length ? "text-[blueviolet]" : "text-gray-400" }
-              onClick={() => {
-                setFavourites([])
-                setFilterFavs(false)
-            }}>Clear favourites</button>
-          </div>
-        </div>
-        <br />
-      </header>
+      <Header
+        filterFavs={filterFavs}
+        favourites={favourites}
+        onChangeDate={({ target }) => {
+          setDate(target.value)
+          setSearchParams(prev => {
+            prev.set('q', 'created:>' + target.value)
+            return prev
+          })
+        }}
+        onChangeFilterFavourites={({ target }) => setFilterFavs(target.checked)}
+        onClearFavourites={() => {
+          setFavourites([])
+          setFilterFavs(false)
+        }}
+      />
       <main>
         { errorMessage && <p className="bg-red-300  p-3 rounded-md">{ errorMessage }</p> }
         {
