@@ -32,8 +32,8 @@ export default function Header({
       <div>
         <label htmlFor="language"><b>Language: </b></label>
         <input
+          className="pl-1 border-solid border-2 border-gray rounded"
           id="language"
-          type="input"
           onChange={({ target }) => {
             timeoutRef.current = setTimeout(() => {
               clearTimeout(timeoutRef.current)
