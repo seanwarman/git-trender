@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react'
-import { GIT_TRENDER_DATE, GIT_TRENDER_FAVOURITES, GIT_TRENDER_FILTER_FAVS } from './constants.js'
+import {
+  GIT_TRENDER_LANG,
+  GIT_TRENDER_DATE,
+  GIT_TRENDER_FAVOURITES,
+  GIT_TRENDER_FILTER_FAVS
+} from './constants.js'
 
 export const useSyncedState = () => {
   // TODO make this default state more robust...
@@ -7,6 +12,7 @@ export const useSyncedState = () => {
   // TODO make this default state more robust...
   const [filterFavs, setFilterFavs] = useState(window.localStorage.getItem(GIT_TRENDER_FILTER_FAVS) === 'true' || false)
   const [date, setDate] = useState(window.localStorage.getItem(GIT_TRENDER_DATE) || '2017-01-10')
+  const [lang, setLang] = useState(window.localStorage.getItem(GIT_TRENDER_LANG) || null)
 
   useEffect(() => {
     window.localStorage.setItem(GIT_TRENDER_FILTER_FAVS, String(filterFavs))
@@ -20,6 +26,10 @@ export const useSyncedState = () => {
     date && window.localStorage.setItem(GIT_TRENDER_DATE, date)
   }, [date])
 
+  useEffect(() => {
+    lang && window.localStorage.setItem(GIT_TRENDER_LANG, lang)
+  }, [lang])
+
   return [
     favourites,
     setFavourites,
@@ -27,5 +37,7 @@ export const useSyncedState = () => {
     setFilterFavs,
     date,
     setDate,
+    lang,
+    setLang,
   ]
 }

@@ -32,15 +32,19 @@ function App() {
     setFilterFavs,
     date,
     setDate,
+    lang,
+    setLang,
   ] = useSyncedState()
 
   useEffect(() => {
     if (window.location.search.length) {
       setSearchParams(window.location.search)
-    } else {
+    } else if(!lang) {
       setSearchParams('q=created:>' + date + '&sort=stars&order=desc')
+    } else {
+      setSearchParams('q=created:>' + date + '%20language:' + lang + '&sort=stars&order=desc')
     }
-  }, [setSearchParams, date])
+  }, [setSearchParams, lang, date])
 
   useEffect(() => {
     (async() => {
@@ -64,15 +68,24 @@ function App() {
   return (
     <div className="App container mx-auto max-w-4xl mt-6 pt-6">
       <Header
-        filterFavs={filterFavs}
-        favourites={favourites}
         onChangeDate={({ target }) => {
           setDate(target.value)
           setSearchParams(prev => {
-            prev.set('q', 'created:>' + target.value)
+            (!lang && prev.set('q', 'created:>' + target.value))
+              || prev.set('q', 'language:' + lang + ' created:>' + date)
             return prev
           })
         }}
+        onChangeLang={lang => {
+          setLang(lang)
+          setSearchParams(prev => {
+            (!date && prev.set('q', 'language' + lang))
+              || prev.set('q', 'language:' + lang + ' created:>' + date)
+            return prev
+          })
+        }}
+        filterFavs={filterFavs}
+        favourites={favourites}
         onChangeFilterFavourites={({ target }) => setFilterFavs(target.checked)}
         onClearFavourites={() => {
           setFavourites([])
