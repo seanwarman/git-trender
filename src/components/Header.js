@@ -1,14 +1,20 @@
+import { useRef } from 'react'
+
 export default function Header({
   filterFavs,
   favourites,
   onChangeDate,
+  onChangeLang,
   onChangeFilterFavourites,
   onClearFavourites,
 }) {
+  const timeoutRef = useRef(null)
+  const inputRef = useRef('')
+
   return <header>
     <h1 className="text-2xl font-bold">Git Trender</h1>
     <br />
-    <div className="columns-3">
+    <div className="columns-4">
       <div><label htmlFor="checkbox-favourites"><b>Favourites:</b></label> 
         <input
           disabled={favourites.length === 0}
@@ -20,8 +26,22 @@ export default function Header({
         />
       </div>
       <div>
-        <label htmlFor="created-from"><b>Created from</b>: </label>
+        <label htmlFor="created-from"><b>Created from: </b></label>
         <input id="created-from" type="date" onChange={onChangeDate} />
+      </div>
+      <div>
+        <label htmlFor="language"><b>Language: </b></label>
+        <input
+          id="language"
+          type="input"
+          onChange={({ target }) => {
+            timeoutRef.current = setTimeout(() => {
+              clearTimeout(timeoutRef.current)
+              const { value } = target
+              onChangeLang(value)
+            }, 1000)
+          }}
+        />
       </div>
       <div className="text-end">
         <button
@@ -31,5 +51,4 @@ export default function Header({
     </div>
     <br />
   </header>
-
 }
