@@ -2,18 +2,14 @@ const style = {
   width: '1rem',
 }
 
-export default function FavouriteIcon({ checked, onClick, ...props }) {
+export default function FavouriteIcon({ checked = false, onClick }) {
   return (
     <div
-      {...props}
+      aria-label="Favourite checkbox"
       role="checkbox"
-      alt="Favourite icon"
-      tabIndex="0"
       aria-checked={checked}
-      onKeyDown={(e) => {
-        (e.keyCode === 32 || e.keyCode === 13) && onClick(!checked)
-      }}
-      onClick={() => onClick(!checked)}
+      onClick={onClick}
+      tabIndex="0"
     >
       {
         checked
