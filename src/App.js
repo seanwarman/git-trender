@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 
+import {
+  useSyncedState,
+} from './App.hooks.js'
+
 import FavouriteIcon from './components/FavouriteIcon'
 import StarIcon from './components/StarIcon'
 
@@ -17,32 +21,20 @@ function onClickFavouritePartial(setFavourites, id) {
   }
 }
 
-const GIT_TRENDER_FAVOURITES = 'GIT_TRENDER_FAVOURITES'
-const GIT_TRENDER_FILTER_FAVS = 'GIT_TRENDER_FILTER_FAVS'
-const GIT_TRENDER_DATE = 'GIT_TRENDER_DATE'
-
 function App() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [repos, setRepos] = useState([])
   const [errorMessage, setErrorMessage] = useState(null)
   const [total, setTotal] = useState(0)
-  // TODO make this default state more robust...
-  const [favourites, setFavourites] = useState(JSON.parse(window.localStorage.getItem(GIT_TRENDER_FAVOURITES)) || [])
-  // TODO make this default state more robust...
-  const [filterFavs, setFilterFavs] = useState(window.localStorage.getItem(GIT_TRENDER_FILTER_FAVS) === 'true' || false)
-  const [date, setDate] = useState(window.localStorage.getItem(GIT_TRENDER_DATE) || '2017-01-10')
 
-  useEffect(() => {
-    window.localStorage.setItem(GIT_TRENDER_FILTER_FAVS, String(filterFavs))
-  }, [filterFavs])
-
-  useEffect(() => {
-    window.localStorage.setItem(GIT_TRENDER_FAVOURITES, JSON.stringify(favourites))
-  }, [favourites])
-
-  useEffect(() => {
-    date && window.localStorage.setItem(GIT_TRENDER_DATE, date)
-  }, [date])
+  const [
+    favourites,
+    setFavourites,
+    filterFavs,
+    setFilterFavs,
+    date,
+    setDate,
+  ] = useSyncedState()
 
   useEffect(() => {
     if (window.location.search.length) {
@@ -50,7 +42,7 @@ function App() {
     } else {
       setSearchParams('q=created:>' + date + '&sort=stars&order=desc')
     }
-  }, [setSearchParams])
+  }, [setSearchParams, date])
 
   useEffect(() => {
     (async() => {
@@ -70,7 +62,7 @@ function App() {
         }
       }
     })()
-  }, [setTotal, setRepos, searchParams])
+  }, [setTotal, setRepos, searchParams, setErrorMessage])
 
   return (
     <div className="App container mx-auto max-w-4xl mt-6 pt-6">
