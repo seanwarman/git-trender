@@ -8,7 +8,7 @@ import {
 
 export const useSyncedState = () => {
   // TODO make this default state more robust...
-  const [favourites, setFavourites] = useState(JSON.parse(window.localStorage.getItem(GIT_TRENDER_FAVOURITES)))
+  const [favourites, setFavourites] = useState(JSON.parse(window.localStorage.getItem(GIT_TRENDER_FAVOURITES)) || [])
   // TODO make this default state more robust...
   const [filterFavs, setFilterFavs] = useState(window.localStorage.getItem(GIT_TRENDER_FILTER_FAVS) === 'true' || false)
   const [date, setDate] = useState(window.localStorage.getItem(GIT_TRENDER_DATE) || '2017-01-10')
