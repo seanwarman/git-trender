@@ -24,8 +24,8 @@ test('that the icon can be tabbed to and enter or space triggers an event', () =
   render(<FavouriteIcon checked={checked} favourites={favourites} repos={[repo]} />)
 
   userEvent.tab()
-  userEvent.keyboard('enter')
-  userEvent.keyboard('space')
+  userEvent.keyboard('[Enter]')
+  userEvent.keyboard('[Space]')
   expect(keyupCount).toBe(2)
 
 })
