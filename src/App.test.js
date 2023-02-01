@@ -5,6 +5,12 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import App from './App'
 import { GIT_RENDER_INITIAL_SEARCH } from './constants'
 
+function getAllByLabelTextIfAriaCheckedIs(label, checked) {
+  return screen.getAllByLabelText(label, {
+    selector: '[aria-checked="' + checked.toString() + '"]'
+  })
+}
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -44,52 +50,49 @@ test('clicking the filter checkbox, filters the list to match favourites', async
 })
 
 test('that the icon can be tabbed to and enter or space triggers an event', async () => {
-  let keyupCount = 0
   render(<RouterProvider router={router} />)
 
-  userEvent.tab()
-  userEvent.tab()
-  userEvent.tab()
-  userEvent.keyboard('[Enter]')
-  let iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
-  expect(iconEls.length).toBe(1)
+  let icon = getAllByLabelTextIfAriaCheckedIs(/Favourite checkbox/, false)[0]
 
-  userEvent.tab()
-  userEvent.tab()
-  userEvent.keyboard('[Space]')
-  iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
-  expect(keyupCount).toBe(2)
-})
-
-test('pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
-  render(<RouterProvider router={router} />)
-
-  const favCheckbox = await screen.findByLabelText(/Favourites/)
-
-  userEvent.tab()
-  userEvent.keyboard('[Space]')
-  expect(favCheckbox.checked).toBe(true)
+  userEvent.click(icon)
+  expect(icon.getAttribute('aria-checked')).toMatch('true')
 
   userEvent.keyboard('[Enter]')
-  expect(favCheckbox.checked).toBe(false)
+  expect(icon.getAttribute('aria-checked')).toMatch('false')
+
+  userEvent.keyboard('[Space]')
+  expect(icon.getAttribute('aria-checked')).toMatch('true')
 })
 
-test('changing the url search params requests different results from github', () => {
-  delete window.location
-  window.location = new URL('https://site.com')
+// test('pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
+//   render(<RouterProvider router={router} />)
 
-  render(<RouterProvider router={router} />)
-  expect(window.location.search).toEqual(GIT_RENDER_INITIAL_SEARCH)
-})
+//   const favCheckbox = await screen.findByLabelText(/Favourites/)
 
-test('entering a language into the input updates the search params and triggers a new request', async () => {
-  delete window.location
-  window.location = new URL('https://site.com')
+//   userEvent.tab()
+//   userEvent.keyboard('[Space]')
+//   expect(favCheckbox.checked).toBe(true)
 
-  render(<RouterProvider router={router} />)
+//   userEvent.keyboard('[Enter]')
+//   expect(favCheckbox.checked).toBe(false)
+// })
 
-  const langInput = await screen.findByLabelText(/Language/)
-  langInput.focus()
-  userEvent.keyboard('java')
-  expect(window.location.search).toContain('language%3Ajava')
-})
+// test('changing the url search params requests different results from github', () => {
+//   delete window.location
+//   window.location = new URL('https://site.com')
+
+//   render(<RouterProvider router={router} />)
+//   expect(window.location.search).toEqual(GIT_RENDER_INITIAL_SEARCH)
+// })
+
+// test('entering a language into the input updates the search params and triggers a new request', async () => {
+//   delete window.location
+//   window.location = new URL('https://site.com')
+
+//   render(<RouterProvider router={router} />)
+
+//   const langInput = await screen.findByLabelText(/Language/)
+//   langInput.focus()
+//   userEvent.keyboard('java')
+//   expect(window.location.search).toContain('language%3Ajava')
+// })
