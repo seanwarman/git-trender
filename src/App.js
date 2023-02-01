@@ -15,9 +15,7 @@ function App() {
   return (
     <>
       <Header
-        onChangeFavFilter={() => {
-          setFavFilter(!favFilter)
-        }}
+        onChangeFavFilter={setFavFilter}
         favFilter={favFilter}
       />
       <Main>

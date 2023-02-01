@@ -3,13 +3,16 @@ export default function Header({ favFilter, onChangeFavFilter }) {
     <h1 className="text-xl">Git Trender</h1>
     <label htmlFor="favourites-filter"><b>Favourites: </b></label>
     <input
-      checked={favFilter}
+      checked={!!favFilter}
       onKeyUp={e => {
+        e.preventDefault()
         if (e.key === 'Enter' || e.key === ' ') {
-          onChangeFavFilter(e)
+          onChangeFavFilter(!favFilter)
         }
       }}
-      onClick={onChangeFavFilter}
+      onChange={() => {
+        onChangeFavFilter(!favFilter)
+      }}
       type="checkbox"
       id="favourites-filter"
     />
