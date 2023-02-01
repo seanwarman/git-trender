@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { waitFor, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
@@ -79,15 +79,26 @@ test('clicking or pressing enter or space on the filter checkbox, filters the li
   expect(favCheckbox.checked).toBe(true)
 })
 
-// test('changing the url search params shows different results', () => {
-//   delete window.location
-//   window.location = new URL('https://site.com')
+test('going to the root address, ie "/", appends the default search params to the url', async () => {
+  render(<RouterProvider router={createBrowserRouter([
+    {
+      path: '/',
+      element: <App />
+    }
+  ])} />)
 
-//   render(<RouterProvider router={router} />)
-//   expect(window.location.search).toEqual(GIT_RENDER_INITIAL_SEARCH)
+  expect(window.location.search).toBe(GIT_RENDER_INITIAL_SEARCH)
+})
+
+// test('changing the search params in the url displays new results in the repos list', () => {
+//   throw Error('TODO')
 // })
 
-// test('entering a language into the input updates the search params and triggers a new request', async () => {
+// test('entering a language into the input updates the search params in the url', () => {
+//   throw Error('TODO')
+// })
+
+// test('entering a language into the input displays a new list of results filtered by that language', async () => {
 //   delete window.location
 //   window.location = new URL('https://site.com')
 
@@ -97,4 +108,8 @@ test('clicking or pressing enter or space on the filter checkbox, filters the li
 //   langInput.focus()
 //   userEvent.keyboard('java')
 //   expect(window.location.search).toContain('language%3Ajava')
+// })
+//
+// test('options are synced to the user\'s browser store', () => {
+//   throw Error('TODO')
 // })
