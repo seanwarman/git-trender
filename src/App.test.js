@@ -64,20 +64,22 @@ test('that the icon can be tabbed to and enter or space triggers an event', asyn
   expect(icon.getAttribute('aria-checked')).toMatch('true')
 })
 
-// test('pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
-//   render(<RouterProvider router={router} />)
+test('clicking or pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
+  render(<RouterProvider router={router} />)
 
-//   const favCheckbox = await screen.findByLabelText(/Favourites/)
+  const favCheckbox = await screen.findByLabelText(/Favourites/)
 
-//   userEvent.tab()
-//   userEvent.keyboard('[Space]')
-//   expect(favCheckbox.checked).toBe(true)
+  userEvent.click(favCheckbox)
+  expect(favCheckbox.checked).toBe(true)
 
-//   userEvent.keyboard('[Enter]')
-//   expect(favCheckbox.checked).toBe(false)
-// })
+  userEvent.keyboard('[Space]')
+  expect(favCheckbox.checked).toBe(false)
 
-// test('changing the url search params requests different results from github', () => {
+  userEvent.keyboard('[Enter]')
+  expect(favCheckbox.checked).toBe(true)
+})
+
+// test('changing the url search params shows different results', () => {
 //   delete window.location
 //   window.location = new URL('https://site.com')
 
