@@ -4,7 +4,11 @@ export default function Header({ favFilter, onChangeFavFilter }) {
     <label htmlFor="favourites-filter"><b>Favourites: </b></label>
     <input
       checked={favFilter}
-      onChange={onChangeFavFilter}
+      onKeyUp={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onChangeFavFilter(e)
+        }
+      }}
       type="checkbox"
       id="favourites-filter"
     />
