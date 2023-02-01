@@ -2,6 +2,13 @@ const style = {
   width: '1rem',
 }
 
+function onKeyUp(onClick) {
+  return (e) =>
+    (e.key === 'Enter' || e.key === ' ')
+    ? onClick(e)
+    : undefined
+}
+
 export default function FavouriteIcon({ checked = false, onClick }) {
   return (
     <div
@@ -9,6 +16,11 @@ export default function FavouriteIcon({ checked = false, onClick }) {
       role="checkbox"
       aria-checked={checked}
       onClick={onClick}
+      onKeyUp={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onClick(e)
+        }
+      }}
       tabIndex="0"
     >
       {

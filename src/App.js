@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import Header from './components/Header'
 import Main from './components/Main'
@@ -8,11 +9,20 @@ import { repo } from './stubs/githubSearchApi'
 
 function App() {
   const [favourites, setFavourites] = useState([])
+  const [search, setSearch] = useSearchParams()
+  const [favFilter, setFavFilter] = useState(false)
+
   return (
     <>
-      <Header />
+      <Header
+        onChangeFavFilter={() => {
+          setFavFilter(!favFilter)
+        }}
+        favFilter={favFilter}
+      />
       <Main>
         <Repos
+          favFilter={favFilter}
           favourites={favourites}
           repos={Array(9).fill(repo).map((r,i) => ({ ...r, id: r.id + i }))}
           onCheck={checkedId => {

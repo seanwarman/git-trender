@@ -33,12 +33,28 @@ test('clicking a bookmark icon highlights that bookmark', async () => {
 test('clicking the filter checkbox, filters the list to match favourites', async () => {
   render(<RouterProvider router={router} />)
 
-  const iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
+  let iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
   userEvent.click(iconEls[0])
   userEvent.click(iconEls[1])
   const favCheckbox = await screen.findByLabelText(/Favourites/)
   userEvent.click(favCheckbox)
+
+  iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
   expect(iconEls.length).toBe(2)
+})
+
+test('that the icon can be tabbed to and enter or space triggers an event', () => {
+  let favourites = []
+  let checked = false
+  let keyupCount = 0
+  render(<RouterProvider router={router} />)
+
+  userEvent.tab()
+  userEvent.tab()
+  userEvent.tab()
+  userEvent.keyboard('[Enter]')
+  userEvent.keyboard('[Space]')
+  expect(keyupCount).toBe(2)
 })
 
 test('pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
