@@ -9,6 +9,7 @@ export default function Header({ favFilter, onChangeFavFilter }) {
           onChangeFavFilter(e)
         }
       }}
+      onClick={onChangeFavFilter}
       type="checkbox"
       id="favourites-filter"
     />
