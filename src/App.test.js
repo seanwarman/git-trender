@@ -43,9 +43,7 @@ test('clicking the filter checkbox, filters the list to match favourites', async
   expect(iconEls.length).toBe(2)
 })
 
-test('that the icon can be tabbed to and enter or space triggers an event', () => {
-  let favourites = []
-  let checked = false
+test('that the icon can be tabbed to and enter or space triggers an event', async () => {
   let keyupCount = 0
   render(<RouterProvider router={router} />)
 
@@ -53,7 +51,13 @@ test('that the icon can be tabbed to and enter or space triggers an event', () =
   userEvent.tab()
   userEvent.tab()
   userEvent.keyboard('[Enter]')
+  let iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
+  expect(iconEls.length).toBe(1)
+
+  userEvent.tab()
+  userEvent.tab()
   userEvent.keyboard('[Space]')
+  iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
   expect(keyupCount).toBe(2)
 })
 
