@@ -1,45 +1,60 @@
-import { waitFor, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 
 import App from './App'
 import { GIT_RENDER_INITIAL_SEARCH } from './constants'
 
-function getAllByLabelTextIfAriaCheckedIs(label, checked) {
-  return screen.getAllByLabelText(label, {
-    selector: '[aria-checked="' + checked.toString() + '"]'
-  })
+import { repo } from './stubs/githubSearchApi'
+
+const QUERY_TIMEOUT = 5000
+
+jest.setTimeout(QUERY_TIMEOUT * 3)
+
+const customRender = (props) => {
+  const { onChangeSearch, initialEntries } = props || { onChangeSearch: null, initialEntries: null }
+
+  const appProps = onChangeSearch ? { onChangeSearch: search => act(() => onChangeSearch(search)) } : {}
+
+  render(<RouterProvider router={createMemoryRouter([{
+    path: '/',
+    element: <App {...appProps}  />
+  }], {
+    initialEntries: initialEntries || ['/']
+  })} />)
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />
-  }
-])
+const mockRepos = Array(9).fill(repo).map((r,i) => ({ ...r, id: r.id + i }))
 
 test('to have a main role element', () => {
-  render(<RouterProvider router={router} />)
+  customRender()
   expect(screen.getByRole('main')).toBeInTheDocument()
 })
 
 test('to have a list role element', () => {
-  render(<RouterProvider router={router} />)
+  customRender()
   expect(screen.getByRole('list')).toBeInTheDocument()
 })
 
 test('clicking a bookmark icon highlights that bookmark', async () => {
-  render(<RouterProvider router={router} />)
+  customRender({
+    onChangeSearch: () => [repo]
+  })
 
-  const iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
+  const iconEls = await screen.findAllByLabelText(/Favourite checkbox/, {}, {
+    timeout: QUERY_TIMEOUT,
+  })
+
   userEvent.click(iconEls[0])
   expect(iconEls[0].getAttribute('aria-checked')).toBe('true')
 })
 
 test('clicking the filter checkbox, filters the list to match favourites', async () => {
-  render(<RouterProvider router={router} />)
+  customRender({ onChangeSearch: () => mockRepos })
 
-  let iconEls = await screen.findAllByLabelText(/Favourite checkbox/)
+  let iconEls = await screen.findAllByLabelText(/Favourite checkbox/, {
+    timeout: QUERY_TIMEOUT,
+  })
   userEvent.click(iconEls[0])
   userEvent.click(iconEls[1])
   const favCheckbox = await screen.findByLabelText(/Favourites/)
@@ -49,10 +64,14 @@ test('clicking the filter checkbox, filters the list to match favourites', async
   expect(iconEls.length).toBe(2)
 })
 
-test('that the icon can be tabbed to and enter or space triggers an event', async () => {
-  render(<RouterProvider router={router} />)
+test('that the icon can be changed by clicking or pressing enter or space', async () => {
+  customRender({ onChangeSearch: () => mockRepos })
 
-  let icon = getAllByLabelTextIfAriaCheckedIs(/Favourite checkbox/, false)[0]
+  const [icon] = await screen.findAllByLabelText(/Favourite checkbox/, {
+    selector: '[aria-checked="false"]',
+  }, {
+    timeout: QUERY_TIMEOUT,
+  })
 
   userEvent.click(icon)
   expect(icon.getAttribute('aria-checked')).toMatch('true')
@@ -65,7 +84,15 @@ test('that the icon can be tabbed to and enter or space triggers an event', asyn
 })
 
 test('clicking or pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
-  render(<RouterProvider router={router} />)
+  customRender({ onChangeSearch: () => mockRepos })
+
+  const icons = await screen.findAllByLabelText(/Favourite checkbox/, {
+    selector: '[aria-checked="false"]',
+  })
+
+  userEvent.click(icons[0])
+  userEvent.click(icons[1])
+  userEvent.click(icons[2])
 
   const favCheckbox = await screen.findByLabelText(/Favourites/)
 
@@ -75,24 +102,38 @@ test('clicking or pressing enter or space on the filter checkbox, filters the li
   userEvent.keyboard('[Space]')
   expect(favCheckbox.checked).toBe(false)
 
+  let iconsSelected = await screen.findAllByLabelText(/Favourite checkbox/)
+  expect(iconsSelected.length).toBeGreaterThan(3)
+
   userEvent.keyboard('[Enter]')
   expect(favCheckbox.checked).toBe(true)
+
+  iconsSelected = await screen.findAllByLabelText(/Favourite checkbox/)
+
+  expect(iconsSelected.length).toBe(3)
+  expect(icons.some(icon => icon.value === iconsSelected[0].value)).toBe(true)
+  expect(icons.some(icon => icon.value === iconsSelected[1].value)).toBe(true)
+  expect(icons.some(icon => icon.value === iconsSelected[2].value)).toBe(true)
 })
 
-test('going to the root address, ie "/", appends the default search params to the url', async () => {
-  render(<RouterProvider router={createBrowserRouter([
-    {
-      path: '/',
-      element: <App />
-    }
-  ])} />)
-
-  expect(window.location.search).toBe(GIT_RENDER_INITIAL_SEARCH)
+test('going to the root address, ie "/", sends an onChangeSearch event with the default search params', async () => {
+  customRender({
+    onChangeSearch: search => {
+      expect('?' + search.toString()).toBe(GIT_RENDER_INITIAL_SEARCH)
+    },
+    initialEntries: ['/'],
+  })
 })
 
-// test('changing the search params in the url displays new results in the repos list', () => {
-//   throw Error('TODO')
-// })
+test('going to the root address with added params sends those params, not the default params, to the onChangeSearch event', async () => {
+  const pathWithParams = '/?q=created%3A%3E2014-01-12'
+  customRender({
+    onChangeSearch: search => {
+      expect('/?' + search.toString()).toBe(pathWithParams)
+    },
+    initialEntries: [pathWithParams],
+  })
+})
 
 // test('entering a language into the input updates the search params in the url', () => {
 //   throw Error('TODO')
