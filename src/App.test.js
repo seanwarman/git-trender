@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 
@@ -12,9 +12,9 @@ const QUERY_TIMEOUT = 5000
 jest.setTimeout(QUERY_TIMEOUT * 3)
 
 const customRender = (props) => {
-  const { onChangeSearch, initialEntries } = props || { onChangeSearch: null, initialEntries: null }
+  const { onChangeUrl, initialEntries } = props || { onChangeUrl: null, initialEntries: null }
 
-  const appProps = onChangeSearch ? { onChangeSearch: search => act(() => onChangeSearch(search)) } : {}
+  const appProps = onChangeUrl ? { onChangeUrl: search => act(() => onChangeUrl(search)) } : {}
 
   render(<RouterProvider router={createMemoryRouter([{
     path: '/',
@@ -38,7 +38,7 @@ test('to have a list role element', () => {
 
 test('clicking a bookmark icon highlights that bookmark', async () => {
   customRender({
-    onChangeSearch: () => [repo]
+    onChangeUrl: () => [repo]
   })
 
   const iconEls = await screen.findAllByLabelText(/Favourite checkbox/, {}, {
@@ -50,7 +50,7 @@ test('clicking a bookmark icon highlights that bookmark', async () => {
 })
 
 test('clicking the filter checkbox, filters the list to match favourites', async () => {
-  customRender({ onChangeSearch: () => mockRepos })
+  customRender({ onChangeUrl: () => mockRepos })
 
   let iconEls = await screen.findAllByLabelText(/Favourite checkbox/, {
     timeout: QUERY_TIMEOUT,
@@ -65,7 +65,7 @@ test('clicking the filter checkbox, filters the list to match favourites', async
 })
 
 test('that the icon can be changed by clicking or pressing enter or space', async () => {
-  customRender({ onChangeSearch: () => mockRepos })
+  customRender({ onChangeUrl: () => mockRepos })
 
   const [icon] = await screen.findAllByLabelText(/Favourite checkbox/, {
     selector: '[aria-checked="false"]',
@@ -84,7 +84,7 @@ test('that the icon can be changed by clicking or pressing enter or space', asyn
 })
 
 test('clicking or pressing enter or space on the filter checkbox, filters the list to match favourites', async () => {
-  customRender({ onChangeSearch: () => mockRepos })
+  customRender({ onChangeUrl: () => mockRepos })
 
   const icons = await screen.findAllByLabelText(/Favourite checkbox/, {
     selector: '[aria-checked="false"]',
@@ -116,28 +116,49 @@ test('clicking or pressing enter or space on the filter checkbox, filters the li
   expect(icons.some(icon => icon.value === iconsSelected[2].value)).toBe(true)
 })
 
-test('going to the root address, ie "/", sends an onChangeSearch event with the default search params', async () => {
+//
+//
+// I know, the next two tests are testing implementation, but I can't find a
+// good way to test the window.location object in Testing Library's simulated
+// environment so this is the next best thing.
+//
+//
+test('going to the root address, ie "/", sends an onChangeUrl event with the default search params', async () => {
   customRender({
-    onChangeSearch: search => {
+    onChangeUrl: search => {
       expect('?' + search.toString()).toBe(GIT_RENDER_INITIAL_SEARCH)
     },
     initialEntries: ['/'],
   })
 })
 
-test('going to the root address with added params sends those params, not the default params, to the onChangeSearch event', async () => {
+test('going to the root address with added params sends those params, not the default params, to the onChangeUrl event', async () => {
   const pathWithParams = '/?q=created%3A%3E2014-01-12'
   customRender({
-    onChangeSearch: search => {
+    onChangeUrl: search => {
       expect('/?' + search.toString()).toBe(pathWithParams)
     },
     initialEntries: [pathWithParams],
   })
 })
 
-// test('entering a language into the input updates the search params in the url', () => {
-//   throw Error('TODO')
-// })
+test('entering a language into the input updates the search params', async () => {
+  let searchStr = null
+
+  customRender({
+    onChangeUrl: search => {
+      searchStr = search.toString()
+    },
+  })
+
+  const langInput = screen.getByLabelText(/Language/)
+  userEvent.click(langInput)
+  userEvent.keyboard('java[Enter]')
+
+  await waitFor(() => {
+    expect(searchStr).toContain('language%3Ajava')
+  })
+})
 
 // test('entering a language into the input displays a new list of results filtered by that language', async () => {
 //   delete window.location

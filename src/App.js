@@ -20,7 +20,7 @@ async function getData(search) {
   }
 }
 
-function App({ onChangeSearch = getData }) {
+function App({ onChangeUrl = getData }) {
   const [favourites, setFavourites] = useState([])
   const [search, setSearch] = useSearchParams()
   const [favFilter, setFavFilter] = useState(false)
@@ -36,7 +36,7 @@ function App({ onChangeSearch = getData }) {
     if (search.toString().length) {
       (async () => {
         try {
-          const items = await onChangeSearch(search)
+          const items = await onChangeUrl(search)
           setRepos(items)
         } catch (error) {
           console.log(`@FILTER error:`, error)
@@ -44,7 +44,7 @@ function App({ onChangeSearch = getData }) {
         }
       })()
     }
-  }, [onChangeSearch, search, setRepos])
+  }, [onChangeUrl, search, setRepos])
 
   return (
     <>
