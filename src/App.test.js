@@ -123,13 +123,18 @@ test('clicking or pressing enter or space on the filter checkbox, filters the li
 // environment so this is the next best thing.
 //
 //
-test('going to the root address, ie "/", sends an onChangeUrl event with the default search params', async () => {
+test('going to the root address, ie "/", sends an onChangeUrl event with the default search params', () => {
+  let searchParams = null
+  const initSearchParams = new URLSearchParams(GIT_RENDER_INITIAL_SEARCH)
+
   customRender({
     onChangeUrl: search => {
-      expect('?' + search.toString()).toBe(GIT_RENDER_INITIAL_SEARCH)
+      searchParams = search
     },
     initialEntries: ['/'],
   })
+
+  expect(searchParams.toString()).toBe(initSearchParams.toString())
 })
 
 test('going to the root address with added params sends those params, not the default params, to the onChangeUrl event', async () => {

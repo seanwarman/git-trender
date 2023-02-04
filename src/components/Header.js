@@ -1,4 +1,4 @@
-export default function Header({ favFilter, onChangeFavFilter }) {
+export default function Header({ favFilter, onChangeFavFilter, onChangeLang }) {
   return <header>
     <h1 className="text-xl">Git Trender</h1>
     <label htmlFor="favourites-filter"><b>Favourites: </b></label>
@@ -15,6 +15,15 @@ export default function Header({ favFilter, onChangeFavFilter }) {
       }}
       type="checkbox"
       id="favourites-filter"
+    />
+    <label htmlFor="language-filter"><b>Language: </b></label>
+    <input
+      id="language-filter"
+      onKeyUp={({ key, target }) => {
+        if (key === 'Enter') {
+          onChangeLang(target.value)
+        }
+      }}
     />
   </header>
 }

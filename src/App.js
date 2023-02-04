@@ -6,7 +6,7 @@ import Header from './components/Header'
 import Main from './components/Main'
 import Repos from './components/Repos'
 
-import { GIT_RENDER_INITIAL_SEARCH } from './constants'
+import { GIT_RENDER_INITIAL_SEARCH, GIT_RENDER_INIT_CREATED_Q } from './constants'
 
 async function getData(search) {
   try {
@@ -49,6 +49,13 @@ function App({ onChangeUrl = getData }) {
   return (
     <>
       <Header
+        onChangeLang={lang => {
+          setSearch(prev => {
+            prev.set('q', GIT_RENDER_INIT_CREATED_Q + ' language:' + lang)
+
+            return prev
+          })
+        }}
         onChangeFavFilter={setFavFilter}
         favFilter={favFilter}
       />
